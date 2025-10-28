@@ -12,7 +12,7 @@ const task1: PerformanceOptions = {
     font_name: 'Sofia',
     font_size: to_px('3vh'),
     track_height: to_px_value('8vh'),
-    min_horizontal_gap: to_px_value('3vh'),
+    min_horizontal_gap: to_px_value('8vw'),
     min_vertical_gap: to_px_value('4vh'),
     max_launch_count_per_tick: 16,
     max_row_count: 100,
@@ -23,22 +23,22 @@ const task1: PerformanceOptions = {
 }
 
 const task2: PerformanceOptions = {
-    track_height: to_px_value('8vh'),
-    min_horizontal_gap: to_px_value('3vh'),
+    track_height: to_px_value('20vh'),
+    min_horizontal_gap: to_px_value('8vw'),
     min_vertical_gap: to_px_value('4vh'),
     max_launch_count_per_tick: 16,
     max_row_count: 100,
     alignment: 'center' as DanmakuAlignment,
     interval: 100,
     danmaku: get_task2_danmaku(),
-    duration: () => random_duration(14000, 18000),
+    duration: () => random_duration(10000, 14000),
 }
 
 const task3: PerformanceOptions = {
     font_name: 'Aref Ruqaa',
     font_size: to_px('3vh'),
     track_height: to_px_value('8vh'),
-    min_horizontal_gap: to_px_value('3vh'),
+    min_horizontal_gap: to_px_value('8vw'),
     min_vertical_gap: to_px_value('4vh'),
     max_launch_count_per_tick: 16,
     max_row_count: 100,
@@ -69,7 +69,7 @@ async function get_task1_danmaku(): Promise<DanmakuOptions[]> {
             },
             loop: false,
             direction: 'to_left',
-            clone_node: true,
+            clone_node: false,
         })
     }
     return ret;
@@ -81,7 +81,7 @@ async function get_task2_danmaku(): Promise<DanmakuOptions[]> {
     for (const url of list) {
         const img = document.createElement('img');
         img.src = url;
-        img.style.maxHeight = task2.track_height + 'px';
+        img.style.maxHeight = task2.track_height - 4 + 'px';
         img.style.display = 'block';
         await img.decode();
 
@@ -91,10 +91,11 @@ async function get_task2_danmaku(): Promise<DanmakuOptions[]> {
             style: {
                 boxSizing: 'border-box',
                 maxHeight: task2.track_height + 'px',
+                border: '2px solid #a07040',
             },
             loop: false,
             direction: 'to_left',
-            clone_node: true,
+            clone_node: false,
         });
     }
     return ret;
@@ -123,7 +124,7 @@ async function get_task3_danmaku(): Promise<DanmakuOptions[]> {
             },
             loop: false,
             direction: 'to_right',
-            clone_node: true,
+            clone_node: false,
         })
     }
     return ret;
@@ -152,9 +153,32 @@ async function main() {
     }
 
     await perform(task1, container);
+    await background_transformation2();
     await perform(task2, container);
     await background_transformation();
     await perform(task3, container);
+}
+
+async function background_transformation2(): Promise<void> {
+    return new Promise(res => {
+        const div = document.createElement('div');
+        Object.assign(div.style, {
+            'background': 'linear-gradient(135deg, #fff8f0 0%, #f5ebdc 100%)',
+            'inset': '0',
+            'clipPath': 'circle(0% at 100% 0%)',
+            'transition': 'clip-path 4s ease-out',
+            'zIndex': '999',
+            'position': 'absolute',
+        } as Partial<CSSStyleDeclaration>);
+        div.addEventListener('transitionend', () => {
+            document.body.style.background = 'linear-gradient(135deg, #fff8f0 0%, #f5ebdc 100%)';
+            div.remove();
+            res();
+        });
+        document.body.appendChild(div);
+        void div.offsetWidth;
+        requestAnimationFrame(() => div.style.clipPath = 'circle(150% at 100% 0%)');
+    });
 }
 
 async function background_transformation(): Promise<void> {
