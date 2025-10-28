@@ -1,0 +1,14 @@
+{
+    "name": "toto",
+    "author": "evqovv",
+    "scripts": {
+        "dev": "vite"
+    },
+    "dependencies": {
+        "@evqovs/danmaku": "^1.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.9.3",
+        "vite": "^7.1.12"
+    }
+}
