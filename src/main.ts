@@ -153,53 +153,31 @@ async function main() {
     }
 
     await perform(task1, container);
-    await background_transformation2();
+    await transform_background('linear-gradient(135deg, #fff8f0 0%, #f5ebdc 100%)', '100% 0%');
     await perform(task2, container);
-    await background_transformation();
+    await transform_background('radial-gradient(circle at 50% 20%, rgba(201, 168, 75, 0.04), transparent 20%), linear-gradient(180deg, #0f1214 0%, #1b1f22 100%)', '0% 0%');
     await perform(task3, container);
 }
 
-async function background_transformation2(): Promise<void> {
+async function transform_background(background: string, origin: string): Promise<void> {
     return new Promise(res => {
         const div = document.createElement('div');
         Object.assign(div.style, {
-            'background': 'linear-gradient(135deg, #fff8f0 0%, #f5ebdc 100%)',
+            'background': background,
             'inset': '0',
-            'clipPath': 'circle(0% at 100% 0%)',
+            'clipPath': `circle(0% at ${origin})`,
             'transition': 'clip-path 4s ease-out',
             'zIndex': '999',
             'position': 'absolute',
         } as Partial<CSSStyleDeclaration>);
         div.addEventListener('transitionend', () => {
-            document.body.style.background = 'linear-gradient(135deg, #fff8f0 0%, #f5ebdc 100%)';
+            document.body.style.background = background;
             div.remove();
             res();
         });
         document.body.appendChild(div);
         void div.offsetWidth;
-        requestAnimationFrame(() => div.style.clipPath = 'circle(150% at 100% 0%)');
-    });
-}
-
-async function background_transformation(): Promise<void> {
-    return new Promise(res => {
-        const div = document.createElement('div');
-        Object.assign(div.style, {
-            'background': 'radial-gradient(circle at 50% 20%, rgba(201, 168, 75, 0.04), transparent 20%), linear-gradient(180deg, #0f1214 0%, #1b1f22 100%)',
-            'inset': '0',
-            'clipPath': 'circle(0% at 0% 0%)',
-            'transition': 'clip-path 4s ease-out',
-            'zIndex': '999',
-            'position': 'absolute',
-        } as Partial<CSSStyleDeclaration>);
-        div.addEventListener('transitionend', () => {
-            document.body.style.background = 'radial-gradient(circle at 50% 20%, rgba(201, 168, 75, 0.04), transparent 20%), linear-gradient(180deg, #0f1214 0%, #1b1f22 100%)';
-            div.remove();
-            res();
-        });
-        document.body.appendChild(div);
-        void div.offsetWidth;
-        requestAnimationFrame(() => div.style.clipPath = 'circle(150% at 0% 0%)');
+        requestAnimationFrame(() => div.style.clipPath = `circle(150% at ${origin})`);
     });
 }
 
