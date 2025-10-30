@@ -2,12 +2,16 @@ import { defineConfig } from 'vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 
 export default defineConfig({
-    plugins: [viteSingleFile()],
     base: '/',
+    publicDir: false,
+    plugins: [viteSingleFile()],
     build: {
-        outDir: './docs',
+        outDir: 'docs',
+        emptyOutDir: true,
         assetsDir: '.',
+        copyPublicDir: false,
         rollupOptions: {
+            input: './index.html',
             output: {
                 entryFileNames: '[name].js',
                 chunkFileNames: '[name].js',
@@ -15,5 +19,4 @@ export default defineConfig({
             },
         },
     },
-    publicDir: false,
 })
