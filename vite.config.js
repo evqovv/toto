@@ -3,13 +3,12 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 
 export default defineConfig({
     base: '/',
-    publicDir: false,
     plugins: [viteSingleFile()],
     build: {
         outDir: 'docs',
         emptyOutDir: true,
         assetsDir: '.',
-        copyPublicDir: false,
+        copyPublicDir: true,
         rollupOptions: {
             input: './index.html',
             output: {
