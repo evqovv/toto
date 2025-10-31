@@ -84,7 +84,13 @@ async function get_image_danmaku(): Promise<Promise<DanmakuOptions>[]> {
             img.src = url;
             img.style.maxHeight = image_task.track_height - 4 + 'px';
             img.style.display = 'block';
-            await img.decode();
+            try {
+                await img.decode();
+            } catch (err_msg: unknown) {
+                if (err_msg instanceof Error) {
+                    console.log(`${url}` + '\n' + err_msg);
+                }
+            }
             res({
                 duration: image_task.duration(),
                 node: [img],
