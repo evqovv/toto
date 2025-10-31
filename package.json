@@ -6,7 +6,7 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@evqovs/danmaku": "^1.0.0"
+        "@evqovs/danmaku": "*"
     },
     "devDependencies": {
         "typescript": "^5.9.3",

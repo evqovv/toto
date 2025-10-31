@@ -22,7 +22,7 @@ const task1: PerformanceOptions = {
     duration: () => random_duration(14000, 18000),
 }
 
-const task2: PerformanceOptions = {
+const image_task = {
     track_height: to_px_value('20vh'),
     min_horizontal_gap: to_px_value('8vw'),
     min_vertical_gap: to_px_value('4vh'),
@@ -30,7 +30,7 @@ const task2: PerformanceOptions = {
     max_row_count: 100,
     alignment: 'center' as DanmakuAlignment,
     interval: 100,
-    danmaku: get_task2_danmaku(),
+    danmaku: get_image_danmaku(),
     duration: () => random_duration(10000, 14000),
 }
 
@@ -75,28 +75,30 @@ async function get_task1_danmaku(): Promise<DanmakuOptions[]> {
     return ret;
 }
 
-async function get_task2_danmaku(): Promise<DanmakuOptions[]> {
-    const ret: DanmakuOptions[] = [];
+async function get_image_danmaku(): Promise<Promise<DanmakuOptions>[]> {
+    const ret: Promise<DanmakuOptions>[] = [];
     const list = (await load_text('/assets/img_src.txt')).split('\n');
     for (const url of list) {
-        const img = document.createElement('img');
-        img.src = url;
-        img.style.maxHeight = task2.track_height - 4 + 'px';
-        img.style.display = 'block';
-        await img.decode();
+        ret.push(new Promise(async res => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.style.maxHeight = image_task.track_height - 4 + 'px';
+            img.style.display = 'block';
+            await img.decode();
+            res({
+                duration: image_task.duration(),
+                node: [img],
+                style: {
+                    boxSizing: 'border-box',
+                    maxHeight: image_task.track_height + 'px',
+                    border: '2px solid #a07040',
+                },
+                loop: false,
+                direction: 'to_left',
+                clone_node: false,
+            });
 
-        ret.push({
-            duration: task2.duration(),
-            node: [img],
-            style: {
-                boxSizing: 'border-box',
-                maxHeight: task2.track_height + 'px',
-                border: '2px solid #a07040',
-            },
-            loop: false,
-            direction: 'to_left',
-            clone_node: false,
-        });
+        }));
     }
     return ret;
 }
@@ -130,7 +132,22 @@ async function get_task3_danmaku(): Promise<DanmakuOptions[]> {
     return ret;
 }
 
-async function perform(options: PerformanceOptions, container: HTMLElement) {
+async function perform_image_danmaku(container: HTMLDivElement) {
+    const manager = new DanmakuManager(image_task);
+    manager.mount(container);
+    manager.start_render();
+    for (let d of await image_task.danmaku) {
+        manager.push(await d);
+    }
+    const ro = new ResizeObserver(() => manager.resize());
+    ro.observe(document.body);
+
+    await manager.until_all_done();
+    manager.unmount();
+    ro.disconnect();
+}
+
+async function perform(options: PerformanceOptions, container: HTMLDivElement) {
     const manager = new DanmakuManager(options);
     manager.mount(container);
     manager.push(await options.danmaku);
@@ -147,14 +164,14 @@ async function main() {
     await load_font(task1.font_name!, task1.font_size!);
     await load_font(task3.font_name!, task3.font_size!);
 
-    const container = document.getElementById('danmaku-container');
+    const container: HTMLDivElement | null = document.getElementById('danmaku-container') as HTMLDivElement | null;
     if (!container) {
         throw new Error("Can't find the danmaku-container.");
     }
 
     await perform(task1, container);
     await transform_background('linear-gradient(135deg, #fff8f0 0%, #f5ebdc 100%)', '100% 0%');
-    await perform(task2, container);
+    await perform_image_danmaku(container);
     await transform_background('radial-gradient(circle at 50% 20%, rgba(201, 168, 75, 0.04), transparent 20%), linear-gradient(180deg, #0f1214 0%, #1b1f22 100%)', '0% 0%');
     await perform(task3, container);
 }
